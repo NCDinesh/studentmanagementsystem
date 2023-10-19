@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from .models import Student
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -46,4 +46,29 @@ def add(request):
             'form':StudentForm()
         })
 
-    
+
+def edit(request, id):
+    student = get_object_or_404(Student, pk=id)
+
+    if request.method == "POST":
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return render(request, "students/edit.html", {
+                'form': form,
+                'success': True
+            })
+    else:
+        form = StudentForm(instance=student)
+
+    return render(request, "students/edit.html", {
+        'form': form,
+        'student': student
+    })   
+
+def delete(request ,id):
+    student = get_object_or_404(Student,pk=id)
+    if request.method == "POST":
+        
+        student.delete()
+    return HttpResponseRedirect(reverse("index"))
